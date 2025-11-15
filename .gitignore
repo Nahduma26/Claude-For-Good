@@ -11,23 +11,23 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/downloads/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheels/
+backend/share/python-wheels/
+backend/*.egg-info/
+backend/.installed.cfg
+backend/*.egg
+backend/MANIFEST
 
 # Virtual environments
 venv/
@@ -177,7 +177,12 @@ dist
 
 # Gatsby files
 .cache/
-public
+# Note: public folder should NOT be ignored for React projects
+# public
+
+# React build output
+frontend/build/
+frontend/dist/
 
 # Storybook build outputs
 .out
