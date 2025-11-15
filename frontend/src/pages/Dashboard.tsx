@@ -29,7 +29,7 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         
         <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
           {filteredEmails.length > 0 ? (
-            <div className="max-w-5xl mx-auto space-y-3">
+            <div className="w-full max-w-none px-4 space-y-6">
               {filteredEmails.map(email => (
                 <EmailCard
                   key={email.id}
@@ -39,20 +39,20 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               ))}
             </div>
           ) : (
-            <div className="max-w-5xl mx-auto">
-              <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-slate-100 flex items-center justify-center">
-                  <Inbox className="w-12 h-12 text-slate-400" />
+            <div className="w-full max-w-none px-4">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-20 text-center">
+                <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-inner">
+                  <Inbox className="w-16 h-16 text-slate-400" />
                 </div>
-                <h3 className="mb-2">No emails in this category</h3>
-                <p className="text-slate-500 mb-6">
+                <h3 className="text-3xl font-semibold text-slate-900 mb-4">No emails in this category</h3>
+                <p className="text-xl text-slate-500 mb-10 max-w-lg mx-auto">
                   All caught up! Check back later for new messages.
                 </p>
-                <div className="max-w-sm mx-auto rounded-xl overflow-hidden">
+                <div className="max-w-md mx-auto rounded-xl overflow-hidden shadow-lg">
                   <ImageWithFallback
                     src="https://images.unsplash.com/photo-1631823794808-b359f1132de9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbXB0eSUyMGluYm94JTIwaWxsdXN0cmF0aW9ufGVufDF8fHx8MTc2MzIzNDc1NHww&ixlib=rb-4.1.0&q=80&w=1080"
                     alt="Empty inbox"
-                    className="w-full h-48 object-cover opacity-60"
+                    className="w-full h-64 object-cover opacity-70"
                   />
                 </div>
               </div>

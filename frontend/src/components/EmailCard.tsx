@@ -9,6 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { toast } from 'sonner';
 
 export interface Email {
   id: string;
@@ -28,45 +29,60 @@ interface EmailCardProps {
 }
 
 export function EmailCard({ email, onClick }: EmailCardProps) {
+  const handleSummarize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`Generating summary for "${email.subject}"...`);
+  };
+
+  const handleGenerateDraft = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`Creating draft reply for ${email.studentName}...`);
+  };
+
+  const handleMarkResolved = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toast.success(`Marked "${email.subject}" as resolved`);
+  };
+
   return (
     <div
       onClick={onClick}
-      className={`group bg-white border border-slate-200 rounded-xl p-4 hover:shadow-md hover:border-primary-200 transition-all cursor-pointer ${
-        email.unread ? 'bg-primary-50/30' : ''
+      className={`group bg-white border border-slate-200 rounded-xl p-8 hover:shadow-md hover:bg-slate-50/50 hover:border-slate-300 transition-all duration-200 cursor-pointer ${
+        email.unread ? 'bg-blue-50/50 border-blue-200' : ''
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-6">
         {/* Student Avatar */}
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white flex-shrink-0">
+        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white flex-shrink-0 font-semibold text-xl shadow-md">
           <span>{email.studentName.charAt(0)}</span>
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Header Row */}
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <div className="flex items-center gap-2 min-w-0">
-              <h4 className="truncate">{email.studentName}</h4>
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <h4 className="text-xl font-semibold text-slate-900 truncate">{email.studentName}</h4>
               {email.unread && (
-                <div className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0"></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full flex-shrink-0 animate-pulse"></div>
               )}
             </div>
-            <span className="text-slate-400 flex-shrink-0">{email.timestamp}</span>
+            <span className="text-sm text-slate-500 flex-shrink-0 font-medium">{email.timestamp}</span>
           </div>
 
           {/* Subject */}
-          <p className="text-slate-900 mb-2 line-clamp-1">{email.subject}</p>
+          <p className="text-slate-900 mb-6 line-clamp-1 font-medium text-lg">{email.subject}</p>
 
           {/* AI Summary */}
-          <div className="bg-slate-50 border border-slate-200 rounded-lg p-3 mb-3">
-            <div className="flex items-start gap-2">
-              <Sparkles className="w-4 h-4 text-primary-500 mt-0.5 flex-shrink-0" />
-              <p className="text-slate-600 line-clamp-2">{email.summary}</p>
+          <div className="bg-gradient-to-r from-slate-50 to-blue-50/50 border border-slate-200 rounded-xl p-6 mb-6 shadow-sm">
+            <div className="flex items-start gap-4">
+              <Sparkles className="w-5 h-5 text-primary-600 mt-0.5 flex-shrink-0" />
+              <p className="text-slate-700 line-clamp-2 leading-relaxed text-base">{email.summary}</p>
             </div>
           </div>
 
           {/* Meta Row */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap">
             <CategoryBadge category={email.category} />
             <EmotionIcon emotion={email.emotion} />
             <PriorityIndicator score={email.priority} />
@@ -79,23 +95,23 @@ export function EmailCard({ email, onClick }: EmailCardProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="opacity-0 group-hover:opacity-100 transition-opacity"
+              className="opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-blue-50 rounded-lg p-3"
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
-              <MoreVertical className="w-4 h-4" />
+              <MoreVertical className="w-5 h-5" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem>
-              <FileText className="w-4 h-4 mr-2" />
+          <DropdownMenuContent align="end" className="w-48 shadow-lg border-slate-200">
+            <DropdownMenuItem onClick={handleSummarize} className="cursor-pointer hover:bg-blue-50 py-3">
+              <FileText className="w-4 h-4 mr-3" />
               Summarize
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Sparkles className="w-4 h-4 mr-2" />
+            <DropdownMenuItem onClick={handleGenerateDraft} className="cursor-pointer hover:bg-blue-50 py-3">
+              <Sparkles className="w-4 h-4 mr-3" />
               Generate Draft
             </DropdownMenuItem>
-            <DropdownMenuItem>
-              <CheckCircle className="w-4 h-4 mr-2" />
+            <DropdownMenuItem onClick={handleMarkResolved} className="cursor-pointer hover:bg-blue-50 py-3">
+              <CheckCircle className="w-4 h-4 mr-3" />
               Mark Resolved
             </DropdownMenuItem>
           </DropdownMenuContent>
