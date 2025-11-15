@@ -45,10 +45,106 @@ def create_app():
         print(f"Warning: Could not import modules: {e}")
         print("Running with basic health check only")
     
+    # Root endpoint
+    @app.route('/')
+    def index():
+        return {
+            'message': 'Professor Inbox Copilot API',
+            'version': '1.0.0',
+            'status': 'running',
+            'endpoints': {
+                'health': '/health',
+                'auth': '/auth/',
+                'emails': '/emails/',
+                'processing': '/process/'
+            }
+        }
+    
     # Health check endpoint
     @app.route('/health')
     def health_check():
         return {'status': 'healthy', 'message': 'Professor Inbox Copilot API is running'}
+    
+    # Test endpoints for frontend
+    @app.route('/auth/test')
+    def auth_test():
+        return {
+            'status': 'success',
+            'message': 'Auth service is working',
+            'endpoint': '/auth/test'
+        }
+    
+    @app.route('/emails/test')
+    def emails_test():
+        return {
+            'status': 'success',
+            'message': 'Email service is working',
+            'endpoint': '/emails/test'
+        }
+    
+    # LLM workflow test endpoint
+    @app.route('/llm/test')
+    def llm_test():
+        try:
+            from app.llm.client import is_configured
+            
+            # Check if API key is configured
+            if not is_configured():
+                return {
+                    'status': 'error',
+                    'message': 'GEMINI_API_KEY not configured',
+                    'note': 'Please add GEMINI_API_KEY to your .env file'
+                }
+            
+            from app.llm import categorize_email
+            # Simple test
+            result = categorize_email(
+                "Hi Professor, I'm struggling with the homework assignment. Can you help me understand question 3?",
+                preferences="Be helpful and encouraging"
+            )
+            return {
+                'status': 'success',
+                'message': 'LLM workflows are working',
+                'sample_result': result,
+                'note': 'Gemini API is properly configured and functional'
+            }
+        except ValueError as e:
+            return {
+                'status': 'error',
+                'message': f'Configuration error: {str(e)}',
+                'note': 'Check your .env file configuration'
+            }
+        except Exception as e:
+            return {
+                'status': 'error', 
+                'message': f'LLM workflow error: {str(e)}',
+                'note': 'Make sure GEMINI_API_KEY is valid and has proper permissions'
+            }
+    
+    # List available Gemini models
+    @app.route('/llm/models')
+    def llm_models():
+        try:
+            from app.llm.client import is_configured, list_available_models
+            
+            if not is_configured():
+                return {
+                    'status': 'error',
+                    'message': 'GEMINI_API_KEY not configured'
+                }
+            
+            models = list_available_models()
+            return {
+                'status': 'success',
+                'available_models': models,
+                'current_model': 'gemini-2.0-flash',
+                'server_port': 8000
+            }
+        except Exception as e:
+            return {
+                'status': 'error',
+                'message': f'Error listing models: {str(e)}'
+            }
     
     return app
 
@@ -56,4 +152,5 @@ if __name__ == '__main__':
     app = create_app()
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host='0.0.0.0', port=8000)
+    port = int(os.getenv('PORT', 8000))
+    app.run(debug=True, host='0.0.0.0', port=port)
