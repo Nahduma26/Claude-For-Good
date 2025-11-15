@@ -1,0 +1,19 @@
+# Flask and server dependencies
+flask>=3.0.0
+flask-cors>=4.0.0
+flask-jwt-extended>=4.0.0
+flask-sqlalchemy>=3.0.0
+gunicorn>=21.0.0
+
+# Microsoft Graph SDK
+msal>=1.20.0
+requests>=2.25.0
+
+# Claude AI SDK
+anthropic>=0.7.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# Environment and config
+python-dotenv>=1.0.0
