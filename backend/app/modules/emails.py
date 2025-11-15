@@ -6,6 +6,8 @@ from datetime import datetime
 
 from app.db import SessionLocal
 from app.models import User, Email
+from bs4 import BeautifulSoup
+
 
 emails_bp = Blueprint("emails", __name__)
 
@@ -139,6 +141,14 @@ def sync_emails():
         sender_name = msg["sender"]["emailAddress"]["name"]
         sender_email = msg["sender"]["emailAddress"]["address"]
         body = msg.get("body", {}) or {}
+
+        raw_content = body.get("content", "")
+
+        if body.get("contentType") == "html":
+            soup = BeautifulSoup(raw_content, "html.parser")
+            plain_text = soup.get_text(separator="\n").strip()
+        else:
+            plain_text = raw_content
 
         email = Email(
             user_id=user_id,

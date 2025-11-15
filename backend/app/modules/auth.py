@@ -12,7 +12,7 @@ auth_bp = Blueprint("auth", __name__)
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
 TENANT_ID = os.getenv("MICROSOFT_TENANT_ID", "common")
-REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI", "http://localhost:8000/auth/callback")
+REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI", "http://localhost:3000/auth/callback")
 
 AUTHORITY = "https://login.microsoftonline.com/common"
 SCOPES = ["User.Read", "Mail.Read", "Mail.Send"]
