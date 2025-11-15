@@ -1,12 +1,148 @@
-/* Basic CSS without Tailwind for now */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Color Palette - Academic Blues & Slate Grays */
+:root {
+  /* Primary Colors */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  /* Slate Grays */
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  /* Accent Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-urgent: #dc2626;
+  --color-neutral: #6b7280;
+
+  /* Emotional Tone Colors */
+  --color-anxious: #f97316;
+  --color-confused: #8b5cf6;
+  --color-frustrated: #ef4444;
+  --color-calm: #10b981;
+
+  /* Backgrounds */
+  --color-background: #ffffff;
+  --color-surface: #f8fafc;
+  --color-card: #ffffff;
+
+  /* Borders */
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+/* Typography */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-surface);
+  color: var(--color-slate-900);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-slate-900);
+  letter-spacing: -0.02em;
+}
+
+h2 {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--color-slate-900);
+  letter-spacing: -0.01em;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-slate-900);
+}
+
+h4 {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-slate-700);
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-slate-600);
+}
+
+small {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-slate-500);
+}
+
+/* Utilities */
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Smooth Transitions */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-slate-100);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-slate-300);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-slate-400);
 }
 
 code {
@@ -14,90 +150,55 @@ code {
     monospace;
 }
 
-/* Basic utility classes to replace Tailwind */
-.min-h-screen { min-height: 100vh; }
-.flex { display: flex; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.bg-gray-50 { background-color: #f9fafb; }
-.bg-white { background-color: #ffffff; }
-.bg-blue-600 { background-color: #2563eb; }
-.bg-blue-700 { background-color: #1d4ed8; }
-.bg-blue-100 { background-color: #dbeafe; }
-.bg-red-600 { background-color: #dc2626; }
-.bg-red-700 { background-color: #b91c1c; }
-.text-white { color: #ffffff; }
-.text-gray-900 { color: #111827; }
-.text-gray-600 { color: #4b5563; }
-.text-gray-500 { color: #6b7280; }
-.text-blue-600 { color: #2563eb; }
-.text-blue-500 { color: #3b82f6; }
-.text-red-600 { color: #dc2626; }
-.text-green-600 { color: #16a34a; }
-.text-center { text-align: center; }
-.text-sm { font-size: 0.875rem; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
-.text-3xl { font-size: 1.875rem; }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
-.font-extrabold { font-weight: 800; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-.py-12 { padding-top: 3rem; padding-bottom: 3rem; }
-.px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
-.p-6 { padding: 1.5rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-6 { margin-top: 1.5rem; }
-.mt-8 { margin-top: 2rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-8 { margin-bottom: 2rem; }
-.ml-4 { margin-left: 1rem; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-.w-full { width: 100%; }
-.w-12 { width: 3rem; }
-.h-12 { height: 3rem; }
-.h-16 { height: 4rem; }
-.max-w-md { max-width: 28rem; }
-.max-w-7xl { max-width: 80rem; }
-.rounded { border-radius: 0.25rem; }
-.rounded-lg { border-radius: 0.5rem; }
-.rounded-full { border-radius: 9999px; }
-.border { border-width: 1px; }
-.border-transparent { border-color: transparent; }
-.border-b { border-bottom-width: 1px; }
-.shadow { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1); }
-.shadow-sm { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
-.space-y-2 > * + * { margin-top: 0.5rem; }
-.space-y-4 > * + * { margin-top: 1rem; }
-.space-y-6 > * + * { margin-top: 1.5rem; }
-.space-y-8 > * + * { margin-top: 2rem; }
-.space-x-4 > * + * { margin-left: 1rem; }
-.grid { display: grid; }
-.gap-6 { gap: 1.5rem; }
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-.divide-y > * + * { border-top-width: 1px; }
-.cursor-pointer { cursor: pointer; }
-.transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; }
-.duration-200 { transition-duration: 200ms; }
-.hover\:bg-gray-50:hover { background-color: #f9fafb; }
-.hover\:bg-blue-700:hover { background-color: #1d4ed8; }
-.hover\:bg-red-700:hover { background-color: #b91c1c; }
-.hover\:text-gray-900:hover { color: #111827; }
-.hover\:text-blue-500:hover { color: #3b82f6; }
-.focus\:outline-none:focus { outline: 2px solid transparent; outline-offset: 2px; }
-.focus\:ring-2:focus { --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color); --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000); }
-.focus\:ring-offset-2:focus { --tw-ring-offset-width: 2px; }
-.focus\:ring-blue-500:focus { --tw-ring-opacity: 1; --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity)); }
+/* Academic Theme Classes */
+.bg-primary { background-color: var(--color-primary-600); }
+.bg-primary-light { background-color: var(--color-primary-100); }
+.bg-surface { background-color: var(--color-surface); }
+.bg-card { background-color: var(--color-card); }
 
-/* Badge styles */
+.text-primary { color: var(--color-primary-600); }
+.text-slate { color: var(--color-slate-600); }
+.text-slate-dark { color: var(--color-slate-900); }
+
+.border-primary { border-color: var(--color-border); }
+.border-hover { border-color: var(--color-border-hover); }
+
+.shadow-academic { box-shadow: var(--shadow-md); }
+.shadow-academic-lg { box-shadow: var(--shadow-lg); }
+
+/* Emotion-based classes for email context */
+.emotion-anxious { color: var(--color-anxious); }
+.emotion-confused { color: var(--color-confused); }
+.emotion-frustrated { color: var(--color-frustrated); }
+.emotion-calm { color: var(--color-calm); }
+
+.bg-emotion-anxious { background-color: var(--color-anxious); }
+.bg-emotion-confused { background-color: var(--color-confused); }
+.bg-emotion-frustrated { background-color: var(--color-frustrated); }
+.bg-emotion-calm { background-color: var(--color-calm); }
+
+/* Priority indicators */
+.priority-urgent { 
+  background-color: var(--color-urgent);
+  color: white;
+}
+
+.priority-high {
+  background-color: var(--color-warning);
+  color: white;
+}
+
+.priority-medium {
+  background-color: var(--color-primary-500);
+  color: white;
+}
+
+.priority-low {
+  background-color: var(--color-neutral);
+  color: white;
+}
+
+/* Academic Badge Styles */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -105,12 +206,82 @@ code {
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
+  font-family: inherit;
 }
-.badge-blue { background-color: #dbeafe; color: #1e40af; }
-.badge-purple { background-color: #e9d5ff; color: #7c3aed; }
-.badge-yellow { background-color: #fef3c7; color: #d97706; }
-.badge-red { background-color: #fee2e2; color: #dc2626; }
 
-@media (min-width: 768px) {
-  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.badge-academic { 
+  background-color: var(--color-primary-100); 
+  color: var(--color-primary-800); 
+}
+
+.badge-urgent { 
+  background-color: #fee2e2; 
+  color: var(--color-urgent); 
+}
+
+.badge-administrative { 
+  background-color: #e9d5ff; 
+  color: #7c3aed; 
+}
+
+.badge-research { 
+  background-color: #fef3c7; 
+  color: #d97706; 
+}
+
+.badge-personal { 
+  background-color: #dcfce7; 
+  color: #16a34a; 
+}
+
+/* Component-specific academic styles */
+.email-card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.email-card:hover {
+  border-color: var(--color-border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-academic {
+  background: var(--color-card);
+  border-right: 1px solid var(--color-border);
+}
+
+.header-academic {
+  background: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* Interactive elements */
+.button-primary {
+  background-color: var(--color-primary-600);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button-primary:hover {
+  background-color: var(--color-primary-700);
+}
+
+.button-secondary {
+  background-color: transparent;
+  color: var(--color-primary-600);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--color-border);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.button-secondary:hover {
+  background-color: var(--color-primary-50);
+  border-color: var(--color-primary-300);
 }

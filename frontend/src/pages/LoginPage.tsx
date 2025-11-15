@@ -1,21 +1,37 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { authService } from '../services/authService';
 
-const LoginPage: React.FC = () => {
-  const handleLogin = () => {
-    // For now, just simulate login
-    console.log('Login clicked - will integrate with Microsoft OAuth later');
+interface LoginPageProps {
+  onLogin?: () => void;
+}
+
+const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleLogin = async () => {
+    setIsLoading(true);
+    setError(null);
     
-    // Test the backend connection
-    fetch('http://localhost:8000/auth/test')
-      .then(response => response.json())
-      .then(data => {
-        console.log('Backend test response:', data);
-        alert('Backend connection successful! Check console for details.');
-      })
-      .catch(error => {
-        console.error('Backend connection failed:', error);
-        alert('Backend connection failed. Make sure the Flask server is running on port 8000.');
-      });
+    try {
+      // Use simulated login for development
+      const result = await authService.simulateLogin();
+      
+      if (result.success) {
+        console.log('Simulated login successful:', result.user);
+        
+        if (onLogin) {
+          onLogin();
+        }
+      } else {
+        throw new Error(result.error || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      setError('Login failed. Please make sure the backend server is running.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -50,16 +66,27 @@ const LoginPage: React.FC = () => {
             </div>
           </div>
 
+          {error && (
+            <div className="rounded-md bg-red-50 p-4 mb-4">
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+          )}
+
           <div>
             <button
               onClick={handleLogin}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed"
             >
               <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                🔗
+                {isLoading ? '⏳' : '🔗'}
               </span>
-              Sign in with Microsoft
+              {isLoading ? 'Connecting...' : 'Sign in with Microsoft'}
             </button>
+            
+            <p className="mt-2 text-xs text-gray-500 text-center">
+              Development mode: Will simulate login if Microsoft OAuth is not configured
+            </p>
           </div>
 
           <div className="text-center">
