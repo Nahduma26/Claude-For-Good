@@ -1,6 +1,7 @@
 """
 Daily digest generation workflow using Gemini
 """
+
 import json
 import google.generativeai as genai
 from .client import get_model
@@ -9,56 +10,78 @@ from .schemas import daily_digest_schema
 
 def daily_digest(digest_inputs: list[str]) -> dict:
     """
-    Generate a daily digest of all messages for the professor
-    
-    Args:
-        digest_inputs: List of email summaries, categories, and key information
-    
-    Returns:
-        Dictionary with comprehensive daily digest
-    """
-    model = get_model()
-    
-    # Build the prompt
-    prompt = f"""
-    You are an AI assistant creating a daily email digest for a professor. Summarize all the day's student communications into a comprehensive overview.
+    Generate a daily digest of all messages for the professor.
 
-    Today's email data:
-    {chr(10).join(digest_inputs)}
-    
-    Please create a daily digest that includes:
-    1. Overview summary of the day's communications
-    2. Breakdown by category (academic questions, administrative, etc.)
-    3. High priority items that need immediate attention
-    4. Common themes or recurring questions
-    5. Suggested actions for the professor
-    6. Statistics (total emails, categories, priority distribution)
-    
-    Format the digest to be:
-    - Professional and organized
-    - Easy to scan quickly
-    - Actionable with clear next steps
-    - Highlighting urgent matters at the top
-    - Including relevant metrics and trends
-    
-    The digest should help the professor quickly understand what happened today and what requires their attention.
+    Args:
+        digest_inputs: List of string summaries or JSON-like strings for each email
+
+    Returns:
+        dict containing:
+            - summary (str)
+            - categories (dict)
+            - high_priority (list)
+            - common_themes (list)
+            - recommendations (list)
+            - statistics (dict)
     """
-    
+
+    model = get_model()
+
+    # Join entries safely into a block
+    formatted_inputs = "\n".join(f"- {item}" for item in digest_inputs)
+
+    prompt = f"""
+    You are an AI assistant generating a professional daily digest for a university professor.
+
+    Below is a list of student email summaries and metadata from today:
+
+    {formatted_inputs}
+
+    Produce a comprehensive JSON digest with the following fields:
+
+    {{
+        "summary": string,                               # High-level overview
+        "categories": {{                                 # Counts or lists per category
+            "<category>": int
+        }},
+        "high_priority": [string],                       # Items requiring immediate attention
+        "common_themes": [string],                       # Repeated issues/questions
+        "recommendations": [string],                     # Actionable next steps
+        "statistics": {{
+            "total_emails": int,
+            "priority_distribution": {{
+                "low": int,
+                "medium": int,
+                "high": int
+            }}
+        }}
+    }}
+
+    Guidelines:
+    - Be professional, concise, and actionable.
+    - Highlight urgent matters clearly.
+    - Identify patterns from recurring student messages.
+    - Provide useful next steps for the professor.
+    - Ensure all JSON fields are present and valid.
+    """
+
     try:
         response = model.generate_content(
             prompt,
             generation_config=genai.types.GenerationConfig(
                 response_mime_type="application/json",
-                response_schema=daily_digest_schema
-            )
+                response_schema=daily_digest_schema,
+            ),
         )
-        
-        # Parse the JSON response
-        result = json.loads(response.text)
-        return result
-        
+
+        return json.loads(response.text)
+
     except Exception as e:
-        # Return a fallback response if Gemini fails
         return {
-            "digest": f"Daily digest generation failed: {str(e)}. Please review individual emails manually."
+            "summary": "Daily digest generation failed.",
+            "error": str(e),
+            "recommendations": [
+                "Review the individual emails manually.",
+                "Retry digest generation once the LLM is available."
+            ]
         }
