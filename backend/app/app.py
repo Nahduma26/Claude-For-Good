@@ -118,14 +118,9 @@ def create_app():
     return app
 
 
-# ---------- RUN SERVER ----------
-if __name__ == "__main__":
+def main():
     app = create_app()
+    app.run(debug=True, host="0.0.0.0", port=8000)
 
-    # DO NOT USE Flask-SQLAlchemy create_all()
-    # Supabase already has your schema
-    # Alembic manages migrations
-    # Base.metadata.create_all(bind=engine)  <-- ONLY if you're running local-only DB
-
-    port = int(os.getenv("PORT", 8000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+if __name__ == "__main__":
+    main()
