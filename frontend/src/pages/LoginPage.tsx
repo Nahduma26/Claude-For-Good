@@ -14,22 +14,18 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
     setError(null);
     
     try {
-      // Use simulated login for development
-      const result = await authService.simulateLogin();
+      // Get Microsoft OAuth URL from backend
+      const loginResponse = await authService.getLoginUrl();
       
-      if (result.success) {
-        console.log('Simulated login successful:', result.user);
-        
-        if (onLogin) {
-          onLogin();
-        }
-      } else {
-        throw new Error(result.error || 'Login failed');
+      if (!loginResponse.success || !loginResponse.auth_url) {
+        throw new Error(loginResponse.error || 'Failed to get login URL');
       }
-    } catch (error) {
+      
+      // Redirect to Microsoft OAuth
+      window.location.href = loginResponse.auth_url;
+    } catch (error: any) {
       console.error('Login failed:', error);
-      setError('Login failed. Please make sure the backend server is running.');
-    } finally {
+      setError(error.message || 'Login failed. Please make sure the backend server is running and Microsoft OAuth is configured.');
       setIsLoading(false);
     }
   };
@@ -78,7 +74,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
             <span className="ml-8">{isLoading ? 'Connecting...' : 'Sign in with Microsoft'}</span>
           </button>
           <p className="text-xs text-gray-500 text-center">
-            Development mode: Will simulate login if Microsoft OAuth is not configured
+            You will be redirected to Microsoft to sign in with your account
           </p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { mockEmails } from '../data/mockEmails';
+import { emailService } from '../services/emailService';
 
 interface Message {
   id: string;
@@ -35,7 +36,7 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
     }
   };
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = {
@@ -44,39 +45,68 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
       content: input,
     };
 
-    // Mock AI response with sources
-    const assistantMessage: Message = {
+    setMessages([...messages, userMessage]);
+    setInput('');
+
+    // Show loading message
+    const loadingMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
-      content: input.toLowerCase().includes('extension')
-        ? 'Based on your inbox, you have received 8 extension requests in the past two weeks. The most common reasons cited are: family emergencies (3), medical issues (2), technical difficulties (2), and personal circumstances (1). Students Marcus Johnson, Sarah Chen, and Emily Rodriguez have requested extensions.'
-        : input.toLowerCase().includes('confused')
-        ? 'Several students appear confused about the midterm exam coverage. Three students (Sarah Chen, Priya Patel, Olivia Brown) have asked about which chapters will be tested, and two students have questions about the exam format.'
-        : 'I found 5 relevant emails matching your query. The common theme across these messages is students seeking clarification on assignment requirements and deadlines.',
-      sources: [
-        {
-          studentName: 'Marcus Johnson',
-          subject: 'Grade Appeal Request',
-          snippet: 'Student is requesting a grade review for their midterm exam, citing calculation errors.',
-          emailId: '2',
-        },
-        {
-          studentName: 'Sarah Chen',
-          subject: 'Question about Final Project Requirements',
-          snippet: 'Student is asking for clarification on the project scope and deliverables for the final assignment.',
-          emailId: '1',
-        },
-        {
-          studentName: 'Emma Rodriguez',
-          subject: 'Lab Report Submission Issue',
-          snippet: 'Student had technical difficulties submitting their lab report and is requesting an extension.',
-          emailId: '3',
-        },
-      ],
+      content: 'Searching your inbox...',
     };
+    setMessages(prev => [...prev, loadingMessage]);
 
-    setMessages([...messages, userMessage, assistantMessage]);
-    setInput('');
+    try {
+      // Search emails using backend API
+      const searchResponse = await emailService.searchEmails(input);
+      const results = searchResponse.results;
+
+      // Format the response
+      let content = '';
+      const sources: Array<{ studentName: string; subject: string; snippet: string; emailId: string }> = [];
+
+      if (results.length > 0) {
+        content = `I found ${results.length} relevant email${results.length > 1 ? 's' : ''} matching your query:\n\n`;
+        
+        results.slice(0, 5).forEach((email, idx) => {
+          const studentName = email.sender_name || email.sender_email?.split('@')[0] || 'Unknown';
+          content += `${idx + 1}. ${studentName}: ${email.subject || 'No subject'}\n`;
+          if (email.summary || email.body_preview) {
+            content += `   ${(email.summary || email.body_preview || '').substring(0, 100)}...\n\n`;
+          }
+          
+          sources.push({
+            studentName,
+            subject: email.subject || 'No subject',
+            snippet: email.summary || email.body_preview || 'No preview',
+            emailId: email.id,
+          });
+        });
+
+        if (results.length > 5) {
+          content += `\n...and ${results.length - 5} more result${results.length - 5 > 1 ? 's' : ''}.`;
+        }
+      } else {
+        content = "I couldn't find any emails matching your query. Try rephrasing or using different keywords.";
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content,
+        sources: sources.length > 0 ? sources : undefined,
+      };
+
+      setMessages(prev => prev.slice(0, -1).concat(assistantMessage));
+    } catch (error) {
+      console.error('Search error:', error);
+      const errorMessage: Message = {
+        id: (Date.now() + 2).toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error while searching. Please try again or check if the backend is running.',
+      };
+      setMessages(prev => prev.slice(0, -1).concat(errorMessage));
+    }
   };
 
   return (

@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { Header } from '../components/Header';
-import { EmailCard } from '../components/EmailCard';
+import { EmailCard, Email } from '../components/EmailCard';
 import { mockEmails } from '../data/mockEmails';
+import { emailService } from '../services/emailService';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { Inbox } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface DashboardProps {
   onNavigate: (page: string, data?: any) => void;
@@ -12,10 +14,51 @@ interface DashboardProps {
 
 export function Dashboard({ onNavigate }: DashboardProps) {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [emails, setEmails] = useState<Email[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [useBackend, setUseBackend] = useState(true);
 
-  const filteredEmails = activeCategory === 'all' 
-    ? mockEmails 
-    : mockEmails.filter(email => email.category === activeCategory);
+  // Fetch emails from backend
+  useEffect(() => {
+    const fetchEmails = async () => {
+      if (!useBackend) {
+        // Use mock data as fallback
+        const filtered = activeCategory === 'all' 
+          ? mockEmails 
+          : mockEmails.filter(email => email.category === activeCategory);
+        setEmails(filtered);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const params: any = { page: 1, per_page: 50 };
+        
+        if (activeCategory !== 'all') {
+          params.category = activeCategory;
+        }
+
+        const response = await emailService.getEmails(params);
+        setEmails(response.emails);
+      } catch (error) {
+        console.error('Failed to fetch emails from backend, using mock data:', error);
+        toast.warning('Using mock data - backend unavailable');
+        setUseBackend(false);
+        // Fallback to mock data
+        const filtered = activeCategory === 'all' 
+          ? mockEmails 
+          : mockEmails.filter(email => email.category === activeCategory);
+        setEmails(filtered);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmails();
+  }, [activeCategory, useBackend]);
+
+  const filteredEmails = emails;
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -28,7 +71,14 @@ export function Dashboard({ onNavigate }: DashboardProps) {
         />
         
         <main className="flex-1 overflow-y-auto bg-slate-50 p-8">
-          {filteredEmails.length > 0 ? (
+          {loading ? (
+            <div className="w-full max-w-none px-6 flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-lg text-slate-600">Loading emails...</p>
+              </div>
+            </div>
+          ) : filteredEmails.length > 0 ? (
             <div className="w-full max-w-none px-6 space-y-8">
               {filteredEmails.map(email => (
                 <EmailCard

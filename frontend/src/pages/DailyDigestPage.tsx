@@ -1,26 +1,61 @@
-import { ArrowLeft, Mail, AlertCircle, HelpCircle, AlertTriangle, Calendar, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, Mail, AlertCircle, HelpCircle, AlertTriangle, Calendar, Send, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { toast } from 'sonner';
+import { emailService } from '../services/emailService';
 
 interface DailyDigestProps {
   onBack: () => void;
 }
 
+interface DigestData {
+  summary: string;
+  categories: Record<string, number>;
+  high_priority: string[];
+  common_themes: string[];
+  recommendations: string[];
+  statistics: {
+    total_emails: number;
+    priority_distribution: { low: number; medium: number; high: number };
+  };
+}
+
 export function DailyDigest({ onBack }: DailyDigestProps) {
-  const handleEmailDigest = () => {
-    toast.promise(
-      new Promise((resolve) => {
-        setTimeout(() => {
-          resolve("Digest generated successfully!");
-        }, 2000);
-      }),
-      {
-        loading: "Generating comprehensive email digest...",
-        success: "Email digest sent to your inbox! Check your email for the detailed summary.",
-        error: "Failed to generate digest. Please try again.",
-      }
-    );
+  const [digest, setDigest] = useState<DigestData | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Load digest on mount
+  useEffect(() => {
+    loadDigest();
+  }, [selectedDate]);
+
+  const loadDigest = async () => {
+    setLoading(true);
+    try {
+      const digestData = await emailService.generateDailyDigest(selectedDate);
+      setDigest(digestData);
+    } catch (error) {
+      console.error('Failed to load digest:', error);
+      toast.error('Failed to load daily digest. Using mock data.');
+      // Keep existing mock data structure
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailDigest = async () => {
+    try {
+      setLoading(true);
+      const digestData = await emailService.generateDailyDigest(selectedDate);
+      setDigest(digestData);
+      toast.success('Daily digest generated successfully!');
+    } catch (error) {
+      toast.error('Failed to generate digest. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleReviewTask = () => {
@@ -52,13 +87,28 @@ export function DailyDigest({ onBack }: DailyDigestProps) {
               </div>
             </div>
             <div className="flex items-center gap-4 mt-6">
-              <Button onClick={handleDatePicker} variant="outline" className="gap-3 px-6 py-3 text-base border-slate-300 hover:bg-blue-50">
-                <Calendar className="w-5 h-5" />
-                Saturday, Nov 15
-              </Button>
-              <Button onClick={handleEmailDigest} className="gap-3 px-8 py-3 text-base bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-sm">
-                <Send className="w-5 h-5" />
-                Email Digest
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="px-4 py-2 border border-slate-300 rounded-lg text-base"
+              />
+              <Button 
+                onClick={handleEmailDigest} 
+                disabled={loading}
+                className="gap-3 px-8 py-3 text-base bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-sm disabled:opacity-50"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-5 h-5" />
+                    Generate Digest
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -67,107 +117,129 @@ export function DailyDigest({ onBack }: DailyDigestProps) {
 
       {/* Content */}
       <div className="max-w-none mx-auto p-10 space-y-10">
-        {/* Overview Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
-            <CardHeader className="pb-4 p-8">
-              <CardDescription className="text-slate-500 font-medium text-base">Total Emails</CardDescription>
-              <CardTitle className="text-4xl font-bold text-slate-900 mt-2">47</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
-            <CardHeader className="pb-4 p-8">
-              <CardDescription className="text-slate-500 font-medium text-base">New Today</CardDescription>
-              <CardTitle className="text-4xl font-bold text-primary-600 mt-2">12</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
-            <CardHeader className="pb-4 p-8">
-              <CardDescription className="text-slate-500 font-medium text-base">Urgent</CardDescription>
-              <CardTitle className="text-4xl font-bold text-red-600 mt-2">2</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
-            <CardHeader className="pb-4 p-8">
-              <CardDescription className="text-slate-500 font-medium text-base">Resolved</CardDescription>
-              <CardTitle className="text-4xl font-bold text-green-600 mt-2">8</CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
+        {loading && !digest ? (
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <Loader2 className="w-16 h-16 animate-spin text-primary-600 mx-auto mb-4" />
+              <p className="text-lg text-slate-600">Generating daily digest...</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            {/* Overview Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+              <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
+                <CardHeader className="pb-4 p-8">
+                  <CardDescription className="text-slate-500 font-medium text-base">Total Emails</CardDescription>
+                  <CardTitle className="text-4xl font-bold text-slate-900 mt-2">
+                    {digest?.statistics?.total_emails || 47}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
+                <CardHeader className="pb-4 p-8">
+                  <CardDescription className="text-slate-500 font-medium text-base">High Priority</CardDescription>
+                  <CardTitle className="text-4xl font-bold text-primary-600 mt-2">
+                    {digest?.statistics?.priority_distribution?.high || 12}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
+                <CardHeader className="pb-4 p-8">
+                  <CardDescription className="text-slate-500 font-medium text-base">Medium Priority</CardDescription>
+                  <CardTitle className="text-4xl font-bold text-amber-600 mt-2">
+                    {digest?.statistics?.priority_distribution?.medium || 2}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+              <Card className="border-slate-200 shadow-sm hover:shadow-md transition-shadow hover:bg-blue-50">
+                <CardHeader className="pb-4 p-8">
+                  <CardDescription className="text-slate-500 font-medium text-base">Low Priority</CardDescription>
+                  <CardTitle className="text-4xl font-bold text-green-600 mt-2">
+                    {digest?.statistics?.priority_distribution?.low || 8}
+                  </CardTitle>
+                </CardHeader>
+              </Card>
+            </div>
 
-        {/* Urgent Items */}
-        <Card className="border-slate-200 shadow-sm">
-          <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-red-50 to-orange-50 p-8">
-            <CardTitle className="flex items-center gap-4 text-2xl">
-              <AlertCircle className="w-7 h-7 text-red-500" />
-              Urgent Items
-            </CardTitle>
-            <CardDescription className="text-slate-600 text-base mt-2">Emails requiring immediate attention</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div className="bg-red-50 border border-red-200 rounded-xl p-7 shadow-sm">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h4 className="font-semibold text-red-900 text-xl">Jessica Williams</h4>
-                  <p className="text-red-700 font-medium text-base mt-1">Cannot access course materials - assignment due tonight</p>
-                </div>
-                <span className="text-red-600 text-base font-medium">30 min ago</span>
-              </div>
-              <p className="text-red-700 leading-relaxed text-base">
-                Student locked out of Canvas, multiple failed IT contact attempts. Immediate technical support needed.
-              </p>
-            </div>
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-7 shadow-sm">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h4 className="font-semibold text-amber-900 text-xl">Ryan Miller</h4>
-                  <p className="text-amber-700 font-medium text-base mt-1">Possible academic integrity issue</p>
-                </div>
-                <span className="text-amber-600 text-base font-medium">6 hours ago</span>
-              </div>
-              <p className="text-amber-700 leading-relaxed text-base">
-                Student suspects plagiarism, requests confidential meeting. Requires sensitive handling.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            {/* AI-Generated Summary */}
+            {digest?.summary && (
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader className="p-8">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <Sparkles className="w-7 h-7 text-primary-600" />
+                    AI-Generated Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-8">
+                  <p className="text-lg text-slate-700 leading-relaxed whitespace-pre-line">
+                    {digest.summary}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Repeated Questions */}
-        <Card className="hover:bg-blue-50 transition-colors">
-          <CardHeader className="p-8">
-            <CardTitle className="flex items-center gap-3 text-2xl">
-              <HelpCircle className="w-7 h-7 text-purple-500" />
-              Repeated Student Questions
-            </CardTitle>
-            <CardDescription className="text-base mt-2">Common themes that may warrant a class-wide announcement</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6 p-8">
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-purple-900 text-lg font-semibold">Midterm Exam Coverage</h4>
-                <span className="px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-base">3 students</span>
-              </div>
-              <p className="text-purple-700 mb-4 text-base">
-                Multiple students asking which chapters will be covered on the midterm exam.
-              </p>
-              <div className="text-purple-600 text-base">
-                <strong>Students:</strong> Sarah Chen, Priya Patel, Olivia Brown
-              </div>
-            </div>
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-blue-900 text-lg font-semibold">Assignment Format Requirements</h4>
-                <span className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-base">2 students</span>
-              </div>
-              <p className="text-blue-700 mb-4 text-base">
-                Questions about file format (PDF vs Word) and what to include in submissions.
-              </p>
-              <div className="text-blue-600 text-base">
-                <strong>Students:</strong> Olivia Brown, Priya Patel
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            {/* High Priority Items */}
+            {digest?.high_priority && digest.high_priority.length > 0 && (
+              <Card className="border-slate-200 shadow-sm">
+                <CardHeader className="border-b border-slate-100 bg-gradient-to-r from-red-50 to-orange-50 p-8">
+                  <CardTitle className="flex items-center gap-4 text-2xl">
+                    <AlertCircle className="w-7 h-7 text-red-500" />
+                    High Priority Items
+                  </CardTitle>
+                  <CardDescription className="text-slate-600 text-base mt-2">Items requiring immediate attention</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-8">
+                  {digest.high_priority.map((item, idx) => (
+                    <div key={idx} className="bg-red-50 border border-red-200 rounded-xl p-6 shadow-sm">
+                      <p className="text-red-900 text-base leading-relaxed">{item}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Common Themes */}
+            {digest?.common_themes && digest.common_themes.length > 0 && (
+              <Card className="hover:bg-blue-50 transition-colors">
+                <CardHeader className="p-8">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <HelpCircle className="w-7 h-7 text-purple-500" />
+                    Common Themes
+                  </CardTitle>
+                  <CardDescription className="text-base mt-2">Recurring patterns identified by AI</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-8">
+                  {digest.common_themes.map((theme, idx) => (
+                    <div key={idx} className="bg-purple-50 border border-purple-200 rounded-xl p-6">
+                      <p className="text-purple-900 text-base leading-relaxed">{theme}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Recommendations */}
+            {digest?.recommendations && digest.recommendations.length > 0 && (
+              <Card className="hover:bg-blue-50 transition-colors">
+                <CardHeader className="p-8">
+                  <CardTitle className="flex items-center gap-3 text-2xl">
+                    <AlertTriangle className="w-7 h-7 text-orange-500" />
+                    AI Recommendations
+                  </CardTitle>
+                  <CardDescription className="text-base mt-2">Actionable next steps suggested by AI</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-8">
+                  {digest.recommendations.map((rec, idx) => (
+                    <div key={idx} className="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                      <p className="text-orange-900 text-base leading-relaxed">{rec}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </>
+        )}
 
         {/* Students at Academic Risk */}
         <Card className="hover:bg-blue-50 transition-colors">

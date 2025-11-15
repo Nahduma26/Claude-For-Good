@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ArrowLeft, Sparkles, Copy, Send, FileText, BookOpen, RefreshCw, CheckCircle } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
@@ -9,6 +9,8 @@ import { PriorityIndicator } from '../components/PriorityIndicator';
 import { Email } from '../components/EmailCard';
 import { Badge } from '../components/ui/badge';
 import { toast } from 'sonner';
+import { emailService } from '../services/emailService';
+import { EmailWithContent } from '../utils/emailAdapter';
 
 interface EmailDetailProps {
   email: Email;
@@ -18,16 +20,45 @@ interface EmailDetailProps {
 export function EmailDetail({ email, onBack }: EmailDetailProps) {
   const [activeTab, setActiveTab] = useState('summary');
   const [showPreviousMessages, setShowPreviousMessages] = useState(false);
-  const [draftReply] = useState(
+  const [fullEmail, setFullEmail] = useState<EmailWithContent | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [draftReply, setDraftReply] = useState(
     `Hi ${email.studentName.split(' ')[0]},\n\nThank you for reaching out. I understand your concern regarding ${email.subject.toLowerCase()}.\n\n[Your personalized response based on course policies]\n\nPlease let me know if you have any other questions.\n\nBest regards,\nDr. Rivera`
   );
+
+  // Fetch full email content from backend
+  useEffect(() => {
+    const fetchEmail = async () => {
+      try {
+        setLoading(true);
+        const emailData = await emailService.getEmailWithContent(email.id);
+        setFullEmail(emailData);
+        if (emailData.draftReply) {
+          setDraftReply(emailData.draftReply);
+        }
+      } catch (error) {
+        console.error('Failed to fetch email details, using provided email:', error);
+        // Use the email passed as prop as fallback
+        setFullEmail({ ...email, bodyContent: email.summary });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmail();
+  }, [email.id]);
 
   const handleSendReply = () => {
     toast.success(`Reply sent to ${email.studentName}!`);
   };
 
-  const handleMarkResolved = () => {
-    toast.success('Email marked as resolved');
+  const handleMarkResolved = async () => {
+    try {
+      await emailService.markAsRead(email.id);
+      toast.success('Email marked as resolved');
+    } catch (error) {
+      toast.error('Failed to mark email as resolved');
+    }
   };
 
   const handleCopyDraft = () => {
@@ -35,12 +66,30 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
     toast.success('Draft copied to clipboard');
   };
 
-  const handleGenerateReply = () => {
-    toast.info('Generating AI-powered reply...');
+  const handleGenerateReply = async () => {
+    try {
+      toast.info('Generating AI-powered reply...');
+      const response = await emailService.generateReply(email.id);
+      if (response.reply) {
+        setDraftReply(response.reply);
+        toast.success('Reply generated successfully!');
+      }
+    } catch (error) {
+      toast.error('Failed to generate reply');
+    }
   };
 
-  const handleRefreshSuggestions = () => {
-    toast.info('Refreshing AI suggestions...');
+  const handleRefreshSuggestions = async () => {
+    try {
+      toast.info('Refreshing AI suggestions...');
+      const response = await emailService.generateReply(email.id);
+      if (response.reply) {
+        setDraftReply(response.reply);
+        toast.success('Reply regenerated!');
+      }
+    } catch (error) {
+      toast.error('Failed to regenerate reply');
+    }
   };
 
   return (
@@ -85,30 +134,20 @@ export function EmailDetail({ email, onBack }: EmailDetailProps) {
         <div className="flex-1 overflow-y-auto p-10">
           <div className="w-full max-w-none">
             {/* Email Body */}
-            <div className="bg-white rounded-xl p-12 mb-10 border border-slate-200 shadow-sm">
-              <p className="whitespace-pre-line text-slate-700 leading-relaxed text-xl">
-                Dear Dr. Rivera,
-                
-                I hope this email finds you well. I am writing to {email.subject.toLowerCase()}.
-                
-                {email.category === 'extension' && `I have been dealing with a family emergency that has made it difficult for me to complete the assignment on time. I have documentation that I can provide if needed. I would really appreciate if I could have a few extra days to submit my work.`}
-                
-                {email.category === 'clarification' && `I've been studying for the exam and I'm not entirely clear on the scope of the material. Could you please clarify which chapters will be covered? I want to make sure I'm focusing my studying on the right topics.`}
-                
-                {email.category === 'grades' && `I reviewed the grading rubric for Assignment 4, and I believe there may have been a misunderstanding in how my submission was evaluated. Would it be possible to discuss this further? I'm happy to meet during office hours.`}
-                
-                {email.category === 'urgent' && `I've been trying to access the course materials for the past hour but I keep getting an error message. I've contacted IT but haven't heard back. My assignment is due tonight and I'm really worried I won't be able to submit it on time.`}
-                
-                {email.category === 'honor' && `I need to discuss a sensitive matter regarding academic integrity. I would prefer to speak with you in person if possible. Could we schedule a confidential meeting?`}
-                
-                {email.category === 'logistics' && `Thank you so much for the detailed feedback on my recent assignment. Your comments were incredibly helpful. I was wondering if you could recommend any additional resources or books that might help me dive deeper into this topic?`}
-                
-                Thank you for your time and understanding.
-                
-                Best regards,
-                {email.studentName}
-              </p>
-            </div>
+            {loading ? (
+              <div className="bg-white rounded-xl p-12 mb-10 border border-slate-200 shadow-sm flex items-center justify-center min-h-[200px]">
+                <div className="text-center">
+                  <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-lg text-slate-600">Loading email content...</p>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-white rounded-xl p-12 mb-10 border border-slate-200 shadow-sm">
+                <p className="whitespace-pre-line text-slate-700 leading-relaxed text-xl">
+                  {fullEmail?.bodyContent || email.summary || 'No email content available.'}
+                </p>
+              </div>
+            )}
 
             {/* Thread Timeline */}
             <div className="border border-slate-200 rounded-xl p-10 bg-white shadow-sm">

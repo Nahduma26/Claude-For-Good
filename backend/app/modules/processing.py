@@ -10,7 +10,7 @@ from app.models import User, Email, DailyDigest
 # Gemini utilities (your existing LLM functions)
 from app.llm.categorize_email import categorize_email
 from app.llm.generate_reply import generate_reply
-from app.llm.daily_digest import generate_daily_digest
+from app.llm.daily_digest import daily_digest
 
 processing_bp = Blueprint("processing", __name__)
 
@@ -186,7 +186,12 @@ def digest():
     ]
 
     # ----- GEMINI CALL -----
-    digest_json = generate_daily_digest(user.name, summaries)
+    # Format summaries for daily_digest function
+    digest_inputs = [
+        f"Subject: {s['subject']}, Sender: {s['sender']}, Category: {s.get('category', 'unknown')}, Urgency: {s.get('urgency', 0)}, Summary: {s.get('summary', 'No summary')}"
+        for s in summaries
+    ]
+    digest_json = daily_digest(digest_inputs)
 
     # Store in DB
     db.add(DailyDigest(

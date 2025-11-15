@@ -1,19 +1,16 @@
+import { useState, useEffect } from 'react';
 import { Mail, HelpCircle, Clock, MapPin, AlertTriangle, AlertCircle, ShieldAlert, Inbox } from 'lucide-react';
 import { mockEmails } from '../data/mockEmails';
+import { emailService } from '../services/emailService';
 
-const getCategoryCount = (categoryId: string) => {
-  if (categoryId === 'all') return mockEmails.length;
-  return mockEmails.filter(email => email.category === categoryId).length;
-};
-
-const categories = [
-  { id: 'all', name: 'All Emails', icon: Inbox, count: getCategoryCount('all'), color: 'slate' },
-  { id: 'clarification', name: 'Clarification Questions', icon: HelpCircle, count: getCategoryCount('clarification'), color: 'purple' },
-  { id: 'extension', name: 'Extension Requests', icon: Clock, count: getCategoryCount('extension'), color: 'amber' },
-  { id: 'logistics', name: 'Logistics', icon: MapPin, count: getCategoryCount('logistics'), color: 'blue' },
-  { id: 'grades', name: 'Grade Disputes', icon: AlertTriangle, count: getCategoryCount('grades'), color: 'orange' },
-  { id: 'urgent', name: 'Urgent / Emergency', icon: AlertCircle, count: getCategoryCount('urgent'), color: 'red' },
-  { id: 'honor', name: 'Honor Code Concerns', icon: ShieldAlert, count: getCategoryCount('honor'), color: 'red' },
+const categoryDefinitions = [
+  { id: 'all', name: 'All Emails', icon: Inbox, color: 'slate' },
+  { id: 'clarification', name: 'Clarification Questions', icon: HelpCircle, color: 'purple' },
+  { id: 'extension', name: 'Extension Requests', icon: Clock, color: 'amber' },
+  { id: 'logistics', name: 'Logistics', icon: MapPin, color: 'blue' },
+  { id: 'grades', name: 'Grade Disputes', icon: AlertTriangle, color: 'orange' },
+  { id: 'urgent', name: 'Urgent / Emergency', icon: AlertCircle, color: 'red' },
+  { id: 'honor', name: 'Honor Code Concerns', icon: ShieldAlert, color: 'red' },
 ];
 
 interface SidebarProps {
@@ -22,6 +19,46 @@ interface SidebarProps {
 }
 
 export function Sidebar({ activeCategory, onCategoryChange }: SidebarProps) {
+  const [categoryCounts, setCategoryCounts] = useState<Record<string, number>>({});
+  const [totalCount, setTotalCount] = useState(mockEmails.length);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await emailService.getCategories();
+        const counts: Record<string, number> = {};
+        let total = 0;
+        
+        categories.forEach(cat => {
+          counts[cat.category] = cat.count;
+          total += cat.count;
+        });
+        
+        setCategoryCounts(counts);
+        setTotalCount(total);
+      } catch (error) {
+        console.error('Failed to fetch categories, using mock data:', error);
+        // Fallback to mock data counts
+        const mockCounts: Record<string, number> = {};
+        categoryDefinitions.forEach(cat => {
+          if (cat.id === 'all') {
+            mockCounts[cat.id] = mockEmails.length;
+          } else {
+            mockCounts[cat.id] = mockEmails.filter(e => e.category === cat.id).length;
+          }
+        });
+        setCategoryCounts(mockCounts);
+        setTotalCount(mockEmails.length);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const categories = categoryDefinitions.map(cat => ({
+    ...cat,
+    count: cat.id === 'all' ? totalCount : (categoryCounts[cat.id] || 0),
+  }));
   const getColorClasses = (color: string, isActive: boolean) => {
     if (isActive) {
       const activeColors = {

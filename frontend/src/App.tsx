@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { authService } from './services/authService';
 import LoginPage from './pages/LoginPage';
+import AuthCallback from './pages/AuthCallback';
 import { Dashboard } from './pages/Dashboard';
 import { DailyDigest } from './pages/DailyDigestPage';
 import { AskTheInbox } from './pages/AskTheInbox';
@@ -15,8 +16,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState('dashboard');
   const [selectedEmail, setSelectedEmail] = useState<any | null>(null);
 
+  // Check authentication status on app load
   useEffect(() => {
-    // Check authentication status on app load
     const checkAuth = async () => {
       try {
         const isAuth = authService.isAuthenticated();
@@ -36,6 +37,46 @@ function App() {
     };
 
     checkAuth();
+  }, []);
+
+  // Check if we're on the auth callback page and handle auth state
+  useEffect(() => {
+    let checkAuthAfterCallback: NodeJS.Timeout | null = null;
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    if (window.location.pathname === '/auth/callback') {
+      setCurrentPage('auth-callback');
+      // Check if auth was successful after callback processes
+      checkAuthAfterCallback = setInterval(() => {
+        if (authService.isAuthenticated()) {
+          setIsAuthenticated(true);
+          setCurrentPage('dashboard');
+          // Clean up URL
+          window.history.replaceState({}, document.title, '/');
+          if (checkAuthAfterCallback) {
+            clearInterval(checkAuthAfterCallback);
+            checkAuthAfterCallback = null;
+          }
+        }
+      }, 500);
+      
+      // Clean up after 10 seconds
+      timeoutId = setTimeout(() => {
+        if (checkAuthAfterCallback) {
+          clearInterval(checkAuthAfterCallback);
+          checkAuthAfterCallback = null;
+        }
+      }, 10000);
+    }
+    
+    return () => {
+      if (checkAuthAfterCallback) {
+        clearInterval(checkAuthAfterCallback);
+      }
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   const handleLogin = () => {
@@ -66,6 +107,11 @@ function App() {
   }
 
   const renderPage = () => {
+    // Handle auth callback page
+    if (currentPage === 'auth-callback' || window.location.pathname === '/auth/callback') {
+      return <AuthCallback />;
+    }
+
     if (!isAuthenticated) {
       return <LoginPage onLogin={handleLogin} />;
     }

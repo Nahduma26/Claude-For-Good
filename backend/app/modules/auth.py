@@ -12,6 +12,8 @@ auth_bp = Blueprint("auth", __name__)
 CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
 TENANT_ID = os.getenv("MICROSOFT_TENANT_ID", "common")
+# Redirect URI should point to backend callback (backend then redirects to frontend)
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 REDIRECT_URI = os.getenv("MICROSOFT_REDIRECT_URI", "http://localhost:8000/auth/callback")
 
 AUTHORITY = "https://login.microsoftonline.com/common"
@@ -28,20 +30,33 @@ def get_db():
 
 @auth_bp.route('/login', methods=['GET'])
 def login():
-    print("CLIENT ID:", CLIENT_ID)
-    msal_app = msal.ConfidentialClientApplication(
-        CLIENT_ID,
-        authority=AUTHORITY,
-        client_credential=CLIENT_SECRET
-    )
+    try:
+        # Check if Microsoft OAuth is configured
+        if not CLIENT_ID or not CLIENT_SECRET:
+            return jsonify({
+                "error": "Microsoft OAuth not configured",
+                "message": "MICROSOFT_CLIENT_ID and MICROSOFT_CLIENT_SECRET must be set in environment variables"
+            }), 500
+        
+        msal_app = msal.ConfidentialClientApplication(
+            CLIENT_ID,
+            authority=AUTHORITY,
+            client_credential=CLIENT_SECRET
+        )
 
-    auth_url = msal_app.get_authorization_request_url(
-        SCOPES,
-        redirect_uri=REDIRECT_URI,
-        state="inboxcopilot"
-    )
+        auth_url = msal_app.get_authorization_request_url(
+            SCOPES,
+            redirect_uri=REDIRECT_URI,
+            state="inboxcopilot"
+        )
 
-    return jsonify({"auth_url": auth_url})
+        return jsonify({"auth_url": auth_url})
+    except Exception as e:
+        print(f"Error in login endpoint: {str(e)}")
+        return jsonify({
+            "error": "Failed to generate login URL",
+            "message": str(e)
+        }), 500
 
 
 @auth_bp.route("/callback")
@@ -105,11 +120,16 @@ def callback():
 
     jwt = create_access_token(identity=str(user.id))
 
-    return jsonify({
-        "jwt": jwt,
-        "user": {
-            "id": user.id,
-            "email": user.email,
-            "name": user.name,
-        }
-    })
+    # Redirect to frontend with token in URL (for SPA)
+    # In production, use a more secure method like httpOnly cookies
+    from flask import redirect
+    from urllib.parse import quote
+    
+    redirect_url = (
+        f"{FRONTEND_URL}/auth/callback?"
+        f"token={quote(jwt)}&"
+        f"user_id={quote(str(user.id))}&"
+        f"email={quote(user.email or '')}&"
+        f"name={quote(user.name or '')}"
+    )
+    return redirect(redirect_url)
