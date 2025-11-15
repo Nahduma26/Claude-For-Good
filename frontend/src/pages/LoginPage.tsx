@@ -35,70 +35,56 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-            <span className="text-2xl">📧</span>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="w-full max-w-lg mx-auto bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center space-y-8">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="h-20 w-20 flex items-center justify-center rounded-full bg-blue-100 shadow-lg">
+            <span className="text-4xl">📧</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Professor Inbox Copilot
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            AI-powered email management for academic professionals
+          <h2 className="text-4xl font-extrabold text-gray-900 text-center tracking-tight">Professor Inbox Copilot</h2>
+          <p className="text-lg text-gray-600 text-center">AI-powered email management for academic professionals</p>
+        </div>
+        <div className="w-full bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100 rounded-xl p-8 shadow flex flex-col items-center">
+          <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <span className="text-blue-500">✨</span> Features
+          </h3>
+          <ul className="space-y-3 text-base text-gray-700 w-full">
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> Automatic email categorization</li>
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> AI-powered draft responses</li>
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> Honor code risk detection</li>
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> Student sentiment analysis</li>
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> Smart inbox search</li>
+            <li className="flex items-center gap-2"><span className="text-blue-400">•</span> Daily digest summaries</li>
+          </ul>
+        </div>
+        {error && (
+          <div className="rounded-md bg-red-50 p-4 w-full">
+            <div className="text-base text-red-700 text-center">{error}</div>
+          </div>
+        )}
+        <div className="w-full flex flex-col items-center gap-4">
+          <button
+            onClick={handleLogin}
+            disabled={isLoading}
+            className="group relative w-full flex items-center justify-center py-4 px-6 text-lg font-semibold rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed shadow-lg"
+          >
+            <span className="absolute left-4 flex items-center">
+              {isLoading ? (
+                <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /></svg>
+              ) : (
+                <svg className="h-6 w-6 text-white" viewBox="0 0 32 32"><rect x="2" y="2" width="28" height="28" rx="6" fill="#0078D4" /><path d="M8 16h16M16 8v16" stroke="#fff" strokeWidth="2" strokeLinecap="round" /></svg>
+              )}
+            </span>
+            <span className="ml-8">{isLoading ? 'Connecting...' : 'Sign in with Microsoft'}</span>
+          </button>
+          <p className="text-xs text-gray-500 text-center">
+            Development mode: Will simulate login if Microsoft OAuth is not configured
           </p>
         </div>
-        
-        <div className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div className="bg-white p-6 rounded-lg border">
-              <h3 className="text-lg font-medium text-gray-900 mb-4">
-                Features
-              </h3>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li>• Automatic email categorization</li>
-                <li>• AI-powered draft responses</li>
-                <li>• Honor code risk detection</li>
-                <li>• Student sentiment analysis</li>
-                <li>• Smart inbox search</li>
-                <li>• Daily digest summaries</li>
-              </ul>
-            </div>
-          </div>
-
-          {error && (
-            <div className="rounded-md bg-red-50 p-4 mb-4">
-              <div className="text-sm text-red-700">{error}</div>
-            </div>
-          )}
-
-          <div>
-            <button
-              onClick={handleLogin}
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 disabled:bg-blue-400 disabled:cursor-not-allowed"
-            >
-              <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-                {isLoading ? '⏳' : '🔗'}
-              </span>
-              {isLoading ? 'Connecting...' : 'Sign in with Microsoft'}
-            </button>
-            
-            <p className="mt-2 text-xs text-gray-500 text-center">
-              Development mode: Will simulate login if Microsoft OAuth is not configured
-            </p>
-          </div>
-
-          <div className="text-center">
-            <button
-              onClick={handleLogin}
-              className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-            >
-              Test Backend Connection
-            </button>
-          </div>
-        </div>
       </div>
+      <footer className="mt-10 text-center text-gray-400 text-sm">
+        &copy; {new Date().getFullYear()} Professor Inbox Copilot. All rights reserved.
+      </footer>
     </div>
   );
 };

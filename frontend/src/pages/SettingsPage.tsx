@@ -14,6 +14,11 @@ interface SettingsPageProps {
 }
 
 export function SettingsPage({ onBack }: SettingsPageProps) {
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userInfo');
+    window.location.href = '/login';
+  };
   const [tone, setTone] = useState('professional');
   const [replyLength, setReplyLength] = useState([50]);
   const [autoGenerate, setAutoGenerate] = useState(true);
@@ -259,7 +264,7 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
           </CardContent>
         </Card>
 
-        {/* Save Button */}
+        {/* Save & Logout Buttons */}
         <div className="flex justify-end gap-4 pt-6 border-t border-slate-200">
           <Button variant="outline" onClick={onBack} className="px-6 py-3 text-base hover:bg-blue-50">Cancel</Button>
           <Button 
@@ -268,6 +273,13 @@ export function SettingsPage({ onBack }: SettingsPageProps) {
           >
             <Save className="w-5 h-5" />
             Save Settings
+          </Button>
+          <Button 
+            onClick={handleLogout}
+            variant="outline"
+            className="px-6 py-3 text-base text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+          >
+            Logout
           </Button>
         </div>
       </div>
