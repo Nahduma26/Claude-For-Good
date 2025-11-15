@@ -46,12 +46,12 @@ export function EmotionIcon({ emotion }: EmotionIconProps) {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className={`w-7 h-7 rounded-lg ${cfg.bg} flex items-center justify-center cursor-help`}>
-            <Icon className={`w-4 h-4 ${cfg.color}`} />
+          <div className={`w-10 h-10 rounded-lg ${cfg.bg} flex items-center justify-center cursor-help`}>
+            <Icon className={`w-5 h-5 ${cfg.color}`} />
           </div>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{cfg.label}</p>
+          <p className="text-base">{cfg.label}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

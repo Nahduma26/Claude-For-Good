@@ -27,9 +27,9 @@ export function Dashboard({ onNavigate }: DashboardProps) {
           onAskInbox={() => onNavigate('ask-inbox')}
         />
         
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-8">
           {filteredEmails.length > 0 ? (
-            <div className="w-full max-w-none px-4 space-y-6">
+            <div className="w-full max-w-none px-6 space-y-8">
               {filteredEmails.map(email => (
                 <EmailCard
                   key={email.id}
@@ -39,13 +39,13 @@ export function Dashboard({ onNavigate }: DashboardProps) {
               ))}
             </div>
           ) : (
-            <div className="w-full max-w-none px-4">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-20 text-center">
-                <div className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-inner">
-                  <Inbox className="w-16 h-16 text-slate-400" />
+            <div className="w-full max-w-none px-6">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-24 text-center">
+                <div className="w-40 h-40 mx-auto mb-10 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shadow-inner">
+                  <Inbox className="w-20 h-20 text-slate-400" />
                 </div>
-                <h3 className="text-3xl font-semibold text-slate-900 mb-4">No emails in this category</h3>
-                <p className="text-xl text-slate-500 mb-10 max-w-lg mx-auto">
+                <h3 className="text-4xl font-semibold text-slate-900 mb-5">No emails in this category</h3>
+                <p className="text-2xl text-slate-500 mb-12 max-w-lg mx-auto">
                   All caught up! Check back later for new messages.
                 </p>
                 <div className="max-w-md mx-auto rounded-xl overflow-hidden shadow-lg">

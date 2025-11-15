@@ -60,11 +60,11 @@ export function CategoryBadge({ category, size = 'sm' }: CategoryBadgeProps) {
 
   const cfg = config[category as keyof typeof config] || config.all;
   const Icon = cfg.icon;
-  const sizeClasses = size === 'sm' ? 'px-2 py-0.5 gap-1' : 'px-3 py-1 gap-1.5';
-  const iconSize = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4';
+  const sizeClasses = size === 'sm' ? 'px-3 py-1.5 gap-1.5 text-sm' : 'px-4 py-2 gap-2 text-base';
+  const iconSize = size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
 
   return (
-    <span className={`inline-flex items-center ${sizeClasses} rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border}`}>
+    <span className={`inline-flex items-center ${sizeClasses} rounded-full ${cfg.bg} ${cfg.text} border ${cfg.border} font-medium`}>
       <Icon className={iconSize} />
       <span>{cfg.label}</span>
     </span>
