@@ -45,10 +45,42 @@ def create_app():
         print(f"Warning: Could not import modules: {e}")
         print("Running with basic health check only")
     
+    # Root endpoint
+    @app.route('/')
+    def index():
+        return {
+            'message': 'Professor Inbox Copilot API',
+            'version': '1.0.0',
+            'status': 'running',
+            'endpoints': {
+                'health': '/health',
+                'auth': '/auth/',
+                'emails': '/emails/',
+                'processing': '/process/'
+            }
+        }
+    
     # Health check endpoint
     @app.route('/health')
     def health_check():
         return {'status': 'healthy', 'message': 'Professor Inbox Copilot API is running'}
+    
+    # Test endpoints for frontend
+    @app.route('/auth/test')
+    def auth_test():
+        return {
+            'status': 'success',
+            'message': 'Auth service is working',
+            'endpoint': '/auth/test'
+        }
+    
+    @app.route('/emails/test')
+    def emails_test():
+        return {
+            'status': 'success',
+            'message': 'Email service is working',
+            'endpoint': '/emails/test'
+        }
     
     return app
 

@@ -1,1 +1,4 @@
-# Empty file to make this a Python package
+# Flask app package
+from .models import db
+
+__all__ = ['db']
