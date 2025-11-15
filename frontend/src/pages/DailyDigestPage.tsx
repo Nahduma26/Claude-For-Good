@@ -9,7 +9,18 @@ interface DailyDigestProps {
 
 export function DailyDigest({ onBack }: DailyDigestProps) {
   const handleEmailDigest = () => {
-    toast.success("Generating comprehensive email digest...");
+    toast.promise(
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve("Digest generated successfully!");
+        }, 2000);
+      }),
+      {
+        loading: "Generating comprehensive email digest...",
+        success: "Email digest sent to your inbox! Check your email for the detailed summary.",
+        error: "Failed to generate digest. Please try again.",
+      }
+    );
   };
 
   const handleReviewTask = () => {
@@ -28,24 +39,25 @@ export function DailyDigest({ onBack }: DailyDigestProps) {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <div className="bg-white border-b border-slate-200 shadow-sm">
-        <div className="max-w-6xl mx-auto p-8">
-          <Button variant="ghost" onClick={onBack} className="gap-2 mb-6 text-slate-600 hover:text-slate-900 hover:bg-slate-100 -ml-2">
-            <ArrowLeft className="w-4 h-4" />
-            Back to Dashboard
-          </Button>
-          
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Daily Digest</h1>
-              <p className="text-lg text-slate-600">Summary of email activity for today</p>
+        <div className="w-full px-10 py-8">
+          <div className="flex items-start justify-between w-full">
+            <div className="flex flex-col items-start">
+              <Button variant="ghost" onClick={onBack} className="gap-3 mb-6 text-slate-600 hover:text-slate-900 hover:bg-blue-50 -ml-2 px-4 py-3 text-base">
+                <ArrowLeft className="w-5 h-5" />
+                Back to Dashboard
+              </Button>
+              <div>
+                <h1 className="text-4xl font-bold text-slate-900 mb-3">Daily Digest</h1>
+                <p className="text-xl text-slate-600">Summary of email activity for today</p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <Button onClick={handleDatePicker} variant="outline" className="gap-3 px-4 py-3 border-slate-300 hover:bg-slate-50">
-                <Calendar className="w-4 h-4" />
+            <div className="flex items-center gap-4 mt-6">
+              <Button onClick={handleDatePicker} variant="outline" className="gap-3 px-6 py-3 text-base border-slate-300 hover:bg-blue-50">
+                <Calendar className="w-5 h-5" />
                 Saturday, Nov 15
               </Button>
-              <Button onClick={handleEmailDigest} className="gap-3 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-sm">
-                <Send className="w-4 h-4" />
+              <Button onClick={handleEmailDigest} className="gap-3 px-8 py-3 text-base bg-primary-600 hover:bg-primary-700 text-white font-medium shadow-sm">
+                <Send className="w-5 h-5" />
                 Email Digest
               </Button>
             </div>

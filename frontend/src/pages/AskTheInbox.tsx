@@ -84,68 +84,68 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="border-b border-slate-200 p-4 bg-white">
-          <Button variant="ghost" onClick={onBack} className="gap-2 mb-4">
-            <ArrowLeft className="w-4 h-4" />
+        <div className="border-b border-slate-200 p-8 bg-white">
+          <Button variant="ghost" onClick={onBack} className="gap-3 mb-6 text-slate-600 hover:text-slate-900 hover:bg-blue-50 px-4 py-3 text-base">
+            <ArrowLeft className="w-5 h-5" />
             Back to Dashboard
           </Button>
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center">
+              <Sparkles className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2>Ask the Inbox</h2>
-              <p className="text-slate-500">Conversational search powered by RAG</p>
+              <h2 className="text-3xl font-bold text-slate-900">Ask the Inbox</h2>
+              <p className="text-slate-500 text-lg">Conversational search powered by RAG</p>
             </div>
           </div>
         </div>
 
         {/* Messages */}
-        <ScrollArea className="flex-1 p-6">
-          <div className="max-w-4xl mx-auto space-y-6">
+        <ScrollArea className="flex-1 p-10">
+          <div className="max-w-none mx-auto space-y-8">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-6 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {message.role === 'assistant' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-white" />
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary-500 to-purple-500 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-6 h-6 text-white" />
                   </div>
                 )}
                 
-                <div className={`flex-1 max-w-2xl ${message.role === 'user' ? 'flex justify-end' : ''}`}>
+                <div className={`flex-1 max-w-4xl ${message.role === 'user' ? 'flex justify-end' : ''}`}>
                   <div
-                    className={`rounded-2xl p-4 ${
+                    className={`rounded-2xl p-6 ${
                       message.role === 'user'
                         ? 'bg-primary-600 text-white'
-                        : 'bg-white border border-slate-200'
+                        : 'bg-white border border-slate-200 shadow-sm'
                     }`}
                   >
-                    <p className={message.role === 'user' ? 'text-white' : 'text-slate-700'}>
+                    <p className={`${message.role === 'user' ? 'text-white' : 'text-slate-700'} text-base leading-relaxed`}>
                       {message.content}
                     </p>
                   </div>
 
                   {/* Sources */}
                   {message.sources && message.sources.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      <p className="text-slate-500">Sources:</p>
+                    <div className="mt-5 space-y-3">
+                      <p className="text-slate-500 text-base font-medium">Sources:</p>
                       {message.sources.map((source, idx) => (
                         <div
                           key={idx}
                           onClick={() => handleEmailClick(source.emailId)}
-                          className="bg-slate-50 border border-slate-200 rounded-xl p-3 hover:border-primary-200 transition-colors cursor-pointer"
+                          className="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:border-primary-200 hover:bg-blue-50 transition-colors cursor-pointer"
                         >
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <div className="flex items-center gap-2">
-                              <Mail className="w-4 h-4 text-primary-500" />
-                              <h4 className="text-slate-900">{source.studentName}</h4>
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-3">
+                              <Mail className="w-5 h-5 text-primary-500" />
+                              <h4 className="text-slate-900 font-semibold text-base">{source.studentName}</h4>
                             </div>
-                            <ExternalLink className="w-4 h-4 text-slate-400" />
+                            <ExternalLink className="w-5 h-5 text-slate-400" />
                           </div>
-                          <p className="text-slate-600 mb-2">{source.subject}</p>
-                          <p className="text-slate-500 line-clamp-2">{source.snippet}</p>
+                          <p className="text-slate-600 mb-3 text-base">{source.subject}</p>
+                          <p className="text-slate-500 line-clamp-2 text-base">{source.snippet}</p>
                         </div>
                       ))}
                     </div>
@@ -153,7 +153,7 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
                 </div>
 
                 {message.role === 'user' && (
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center text-white flex-shrink-0 text-base font-semibold">
                     <span>DR</span>
                   </div>
                 )}
@@ -163,31 +163,31 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
         </ScrollArea>
 
         {/* Input Area */}
-        <div className="border-t border-slate-200 p-4 bg-white">
-          <div className="max-w-4xl mx-auto">
+        <div className="border-t border-slate-200 p-8 bg-white">
+          <div className="max-w-none mx-auto">
             {/* Suggested Questions */}
             {messages.length === 1 && (
-              <div className="mb-4">
-                <p className="text-slate-500 mb-3">Try asking:</p>
-                <div className="flex flex-wrap gap-2">
+              <div className="mb-6">
+                <p className="text-slate-500 mb-4 text-base font-medium">Try asking:</p>
+                <div className="flex flex-wrap gap-3">
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setInput('How many students have requested extensions?')}
+                    className="px-6 py-3 text-base hover:bg-blue-50"
                   >
                     Extension requests overview
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setInput('Which students seem confused about the exam?')}
+                    className="px-6 py-3 text-base hover:bg-blue-50"
                   >
                     Students confused about exam
                   </Button>
                   <Button
                     variant="outline"
-                    size="sm"
                     onClick={() => setInput('Show me urgent emails from the past week')}
+                    className="px-6 py-3 text-base hover:bg-blue-50"
                   >
                     Recent urgent emails
                   </Button>
@@ -195,13 +195,13 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
               </div>
             )}
 
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <Textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about patterns, specific students, or search for topics..."
-                className="resize-none"
-                rows={2}
+                className="resize-none text-base p-4"
+                rows={3}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -212,9 +212,9 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
               <Button
                 onClick={handleSend}
                 disabled={!input.trim()}
-                className="self-end bg-primary-600 hover:bg-primary-700 text-white"
+                className="self-end bg-primary-600 hover:bg-primary-700 text-white px-6 py-4"
               >
-                <Send className="w-4 h-4" />
+                <Send className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -222,37 +222,37 @@ export function AskTheInbox({ onBack, onNavigate }: AskTheInboxProps) {
       </div>
 
       {/* Right Panel - Context */}
-      <div className="w-80 border-l border-slate-200 bg-white p-4 overflow-y-auto">
-        <h4 className="mb-4">Search Context</h4>
+      <div className="w-96 border-l border-slate-200 bg-white p-8 overflow-y-auto">
+        <h4 className="mb-6 text-xl font-bold text-slate-900">Search Context</h4>
         
-        <div className="space-y-4">
-          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-            <p className="text-slate-600 mb-2">
-              <strong>47</strong> emails indexed
+        <div className="space-y-6">
+          <div className="bg-slate-50 rounded-xl p-6 border border-slate-200">
+            <p className="text-slate-600 mb-3 text-base">
+              <strong className="text-lg">47</strong> emails indexed
             </p>
-            <p className="text-slate-600">
-              <strong>23</strong> students
+            <p className="text-slate-600 text-base">
+              <strong className="text-lg">23</strong> students
             </p>
           </div>
 
           <div>
-            <h4 className="mb-3">Recent Topics</h4>
-            <div className="space-y-2">
-              <div className="bg-primary-50 border border-primary-200 rounded-lg px-3 py-2">
-                <span className="text-primary-700">Extension requests</span>
+            <h4 className="mb-4 text-lg font-semibold text-slate-900">Recent Topics</h4>
+            <div className="space-y-3">
+              <div className="bg-primary-50 border border-primary-200 rounded-lg px-4 py-3 hover:bg-primary-100 transition-colors">
+                <span className="text-primary-700 text-base font-medium">Extension requests</span>
               </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg px-3 py-2">
-                <span className="text-purple-700">Exam coverage</span>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg px-4 py-3 hover:bg-purple-100 transition-colors">
+                <span className="text-purple-700 text-base font-medium">Exam coverage</span>
               </div>
-              <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-                <span className="text-amber-700">Grade inquiries</span>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 hover:bg-amber-100 transition-colors">
+                <span className="text-amber-700 text-base font-medium">Grade inquiries</span>
               </div>
             </div>
           </div>
 
           <div>
-            <h4 className="mb-3">Tips</h4>
-            <div className="space-y-2 text-slate-600">
+            <h4 className="mb-4 text-lg font-semibold text-slate-900">Tips</h4>
+            <div className="space-y-3 text-slate-600 text-base">
               <p>• Ask about patterns across multiple emails</p>
               <p>• Search for specific student concerns</p>
               <p>• Identify recurring questions</p>
